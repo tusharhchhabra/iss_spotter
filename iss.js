@@ -50,4 +50,28 @@ const fetchCoordsByIP = (ip, callback) => {
   });
 };
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+const fetchISSFlyOverTimes = (coords, callback) => {
+  const queryStr = `?lat=${coords.latitude}&lon=${coords.longitude}`
+  request('https://iss-flyover.herokuapp.com/json/' + queryStr, (err, resp, body) => {
+    if (err) {
+      callback(err);
+      return;
+    }
+
+    if (resp.statusCode !== 200) {
+      const msg = `Status Code ${resp.statusCode} when fetching times. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+
+    const times = JSON.parse(body).response;
+    if (!times) {
+      callback(Error("Failed to parse body."));
+      return;
+    }
+
+    callback(null, times);
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
